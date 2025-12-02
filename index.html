@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Món quà Giáng Sinh</title>
+    <meta name="description" content="Một món quà Giáng Sinh nhỏ xinh dành riêng cho em" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="snow-canvas" aria-hidden="true"></canvas>
+
+    <header class="site-header">
+      <div class="wrap">
+        <div class="brand">🎄 Christmas Gift</div>
+        <nav>
+          <a href="#memories">Kỷ niệm</a>
+          <a href="#gallery">Kho ảnh</a>
+          <a href="gift.html" class="btn btn-primary">Mở món quà</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="hero">
+      <div class="wrap">
+        <h1>
+          Gửi <span id="recipient-name">Em</span>,
+        </h1>
+        <p class="lead">
+          Mùa Giáng Sinh này, anh có một món quà nhỏ muốn dành cho em —
+          một trang web nho nhỏ được anh tự tay làm, chứa những điều dễ thương và những kỷ niệm của chúng mình.
+        </p>
+        <div class="countdown" id="countdown" aria-live="polite">
+          <div class="time"><span id="days">00</span><small>ngày</small></div>
+          <div class="time"><span id="hours">00</span><small>giờ</small></div>
+          <div class="time"><span id="minutes">00</span><small>phút</small></div>
+          <div class="time"><span id="seconds">00</span><small>giây</small></div>
+        </div>
+        <div class="actions">
+          <a href="gift.html" class="btn btn-primary">Mở món quà 🎁</a>
+          <a href="#memories" class="btn btn-secondary">Xem kỷ niệm ✨</a>
+        </div>
+        <p class="signature">— từ <span id="sender-name">Anh</span> —</p>
+      </div>
+    </main>
+
+    <section id="memories" class="memories">
+      <div class="wrap">
+        <h2>Những kỷ niệm của chúng mình</h2>
+        <ul id="timeline" class="timeline"></ul>
+      </div>
+    </section>
+
+    <section id="gallery" class="gallery">
+      <div class="wrap">
+        <h2>Kho ảnh của chúng mình</h2>
+        <div class="gallery-view">
+          <img id="gallery-image" alt="Kỷ niệm" />
+          <div id="gallery-caption" class="caption"></div>
+        </div>
+        <div class="gallery-controls">
+          <button id="gallery-prev" class="btn btn-secondary">⟨ Trước</button>
+          <button id="gallery-next" class="btn btn-secondary">Sau ⟩</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <small>Chúc Giáng Sinh an lành và ấm áp 💚❤️</small>
+      </div>
+    </footer>
+
+    <div id="music-bar" class="music-bar" aria-live="polite">
+      <button id="music-toggle" class="btn btn-secondary">🎵 Phát</button>
+      <input id="music-volume" type="range" min="0" max="1" step="0.05" value="0.6" aria-label="Âm lượng nhạc" />
+      <div id="yt-player" class="yt-player" aria-hidden="true"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

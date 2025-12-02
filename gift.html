@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Món quà Giáng Sinh — Mở quà</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="gift-page">
+    <canvas id="snow-canvas" aria-hidden="true"></canvas>
+
+    <header class="site-header">
+      <div class="wrap">
+        <div class="brand">🎁 Mở quà</div>
+        <nav>
+          <a href="index.html">Trang chủ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="gift-main">
+      <div class="wrap">
+        <h1>Món quà dành cho <span id="recipient-name">Em</span></h1>
+        <p class="hint">Chạm vào phong bì để mở 💌</p>
+
+        <div id="envelope" class="envelope" role="button" aria-label="Mở thư" tabindex="0">
+          <div class="flap"></div>
+          <div class="letter">
+            <div class="letter-content" id="letter-content"></div>
+          </div>
+          <div class="seal">💖</div>
+        </div>
+
+        <div class="gift-actions">
+          <button id="replay" class="btn btn-secondary">Xem lại hiệu ứng</button>
+          <a href="index.html" class="btn btn-primary">Quay lại</a>
+        </div>
+      </div>
+    </main>
+
+    <div id="hearts-container" aria-hidden="true"></div>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <small>Merry Christmas • With love</small>
+      </div>
+    </footer>
+
+    <div id="music-bar" class="music-bar" aria-live="polite">
+      <button id="music-toggle" class="btn btn-secondary">🎵 Phát</button>
+      <input id="music-volume" type="range" min="0" max="1" step="0.05" value="0.6" aria-label="Âm lượng nhạc" />
+      <div id="yt-player" class="yt-player" aria-hidden="true"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const envelope = document.getElementById('envelope');
+        const letterContent = document.getElementById('letter-content');
+        const replayBtn = document.getElementById('replay');
+        const recipientEl = document.getElementById('recipient-name');
+
+        try {
+          recipientEl.textContent = (window.GIFT_CONFIG?.recipientName) || 'Em';
+          letterContent.innerHTML = (window.GIFT_CONFIG?.specialMessage || 'Gửi em, chúc em một mùa Giáng Sinh thật an lành và ấm áp!');
+        } catch (e) {}
+
+        const open = () => {
+          envelope.classList.add('open');
+          startHeartConfetti();
+        };
+
+        envelope.addEventListener('click', open);
+        envelope.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+        });
+        replayBtn.addEventListener('click', () => {
+          envelope.classList.remove('open');
+          void envelope.offsetWidth; // reflow to restart CSS animation
+          startHeartConfetti();
+        });
+      });
+    </script>
+  </body>
+</html>
