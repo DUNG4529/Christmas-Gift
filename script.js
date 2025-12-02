@@ -69,7 +69,7 @@
 
   // Simple smooth scroll for internal anchors
   // Music: supports YouTube Iframe API or local MP3 fallback
-  let audio, ytPlayer, musicReady = false, isPlaying = false;
+  let audio, musicReady = false, isPlaying = false;
   function initAudio(){
     const cfg = window.GIFT_CONFIG?.audio;
     const bar = $('#music-bar');
@@ -85,48 +85,6 @@
       window.addEventListener('keydown', handler, { once: true });
     }
 
-    const setupYouTube = () => {
-      if (!cfg.youtubeId) return false;
-      const inject = () => {
-        if (window.YT && window.YT.Player) { createYT(); return; }
-        const s = document.createElement('script');
-        s.src = 'https://www.youtube.com/iframe_api';
-        document.head.appendChild(s);
-        window.onYouTubeIframeAPIReady = () => { createYT(); };
-      };
-      const createYT = () => {
-        const host = location.origin;
-        ytPlayer = new YT.Player('yt-player', {
-          height: '0', width: '0', videoId: cfg.youtubeId,
-          playerVars: { controls: 0, modestbranding: 1, rel: 0, playsinline: 1, origin: host },
-          events: {
-            onReady: () => {
-              musicReady = true;
-              ytPlayer.setVolume(Math.round((cfg.volume ?? 0.6) * 100));
-              if (cfg.autoplay) try { ytPlayer.playVideo(); } catch(_) {}
-            },
-            onStateChange: (e) => {
-              const YTState = window.YT && window.YT.PlayerState;
-              if (!YTState) return;
-              if (e.data === YTState.PLAYING) { isPlaying = true; toggle.textContent = '⏸ Tạm dừng'; }
-              if (e.data === YTState.PAUSED || e.data === YTState.ENDED) { isPlaying = false; toggle.textContent = '🎵 Phát'; }
-            }
-          }
-        });
-      };
-      inject();
-      toggle.addEventListener('click', () => {
-        if (!musicReady) return;
-        try { if (isPlaying) ytPlayer.pauseVideo(); else ytPlayer.playVideo(); } catch(_) {}
-      });
-      vol.addEventListener('input', () => {
-        const v = parseFloat(vol.value);
-        if (!isNaN(v) && ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(Math.round(Math.max(0, Math.min(1, v)) * 100));
-      });
-      attachAutoplayUnlock(() => ytPlayer && ytPlayer.playVideo && ytPlayer.playVideo());
-      return true;
-    };
-
     const setupLocal = () => {
       if (!cfg.src) return false;
       audio = new Audio(cfg.src);
@@ -134,10 +92,7 @@
       audio.volume = Math.max(0, Math.min(1, cfg.volume ?? 0.6));
       vol.value = String(audio.volume);
       audio.addEventListener('canplay', () => { musicReady = true; });
-      audio.addEventListener('error', () => {
-        // Fallback to YouTube if local file missing or cannot be decoded
-        if (!musicReady && cfg.youtubeId) setupYouTube();
-      });
+      audio.addEventListener('error', () => { musicReady = false; });
       audio.addEventListener('play', () => { isPlaying = true; toggle.textContent = '⏸ Tạm dừng'; });
       audio.addEventListener('pause', () => { isPlaying = false; toggle.textContent = '🎵 Phát'; });
       toggle.addEventListener('click', async () => {
@@ -152,10 +107,8 @@
       return true;
     };
 
-    // Prefer local file if provided; fallback to YouTube
-    if (!setupLocal()) {
-      setupYouTube();
-    }
+    // Use only local MP3
+    setupLocal();
   }
 
   // Gallery

@@ -34,12 +34,11 @@ Start-Process "msedge.exe" "$PWD/index.html"
 - Thanh nhạc: nút phát/tạm dừng và kéo âm lượng ở góc dưới bên phải.
 - Slideshow ảnh: thêm ảnh vào `assets/photos/` và khai báo trong `config.js`.
 
-### Nhạc: ưu tiên file cục bộ, fallback YouTube
+### Nhạc: file MP3 cục bộ
 
-- Nếu `audio.src` trỏ tới một file MP3 trong `assets/audio/`, trang sẽ phát file đó.
-- Nếu file không tồn tại/không phát được và bạn cấu hình `audio.youtubeId`, trang sẽ tự fallback sang phát từ YouTube (ẩn).
-- Để dùng YouTube, đặt `audio.youtubeId` là mã video (ví dụ `2nzdxWY4IJQ`).
-- Autoplay có thể bị chặn cho đến khi bạn bấm nút “Phát”.
+- Đặt file MP3 vào `assets/audio/` (ví dụ `music.mp3`) và chỉnh `config.js` → `audio.src`.
+- Có hỗ trợ `autoplay` kèm cơ chế tự phát sau cú bấm đầu tiên nếu trình duyệt chặn.
+- Điều khiển phát/tạm dừng và âm lượng ở thanh nhạc góc dưới phải.
 
 ## Gợi ý mở rộng
 
