@@ -42,7 +42,7 @@ window.GIFT_CONFIG = {
   // Nhạc nền (MP3 cục bộ)
   audio: {
     enabled: true,
-    src: "assets/audio/Peaceful Christmas Music for Relaxation.mp3", // Đặt file tại đây và đổi tên tuỳ ý
+    src: "assets/audio/Peaceful_Christmas_Music.mp3", // Đặt file tại đây và đổi tên tuỳ ý
     autoplay: true,                 // Cố gắng tự phát; vẫn có cơ chế unlock nếu trình duyệt chặn
     volume: 0.4,                    // 0.0 - 1.0 (40%)
   },

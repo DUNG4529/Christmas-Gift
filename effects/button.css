@@ -30,28 +30,37 @@
 .btn--hat::before {
 	content: "";
 	position: absolute;
-	right: -12px;
-	top: -20px;
-	width: 42px;
-	height: 38px;
+	left: -18px; /* shift a bit more left */
+	top: -18px;  /* move further down globally */
+	width: 50px;
+	height: 46px;
 	background-image: url('../assets/icon/[CITYPNG.COM]HD Christmas Santa Claus Hat Vector Illustration PNG - 1500x1500.png');
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
-	transform-origin: 80% 90%;
-	transform: rotate(-18deg);
-	filter: drop-shadow(0 2px 4px rgba(0,0,0,0.22));
+	transform-origin: 18% 86%;
+	transform: rotate(-20deg) scale(0.98);
+	z-index: 2;
+	filter: drop-shadow(0 3px 5px rgba(0,0,0,0.26));
 	pointer-events: none;
 }
+
+/* Variant-specific micro-alignment so the hat hugs the curve */
+.btn--snow.btn--hat::before { left: -20px; top: -20px; width: 52px; height: 48px; transform: rotate(-21deg) scale(0.98); }
+.btn--fireworks.btn--hat::before { left: -20px; top: -19px; width: 50px; height: 46px; transform: rotate(-19deg) scale(0.98); }
+
+/* Slight interactive feel */
+.btn--hat:hover::before { transform: rotate(-20deg) scale(0.98) translateY(-1px); }
+.btn--hat:active::before { transform: rotate(-20deg) scale(0.98) translateY(0); }
 
 /* Tighter fit for small screens */
 @media (max-width: 480px) {
 	.btn--hat::before {
-		right: -10px;
-		top: -16px;
-		width: 36px;
-		height: 32px;
-		transform: rotate(-16deg);
+		left: -12px;
+		top: -20px;
+		width: 40px;
+		height: 38px;
+		transform: rotate(-20deg) scale(0.98);
 	}
 }
 
