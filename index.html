@@ -6,17 +6,20 @@
     <title>Món quà Giáng Sinh</title>
     <meta name="description" content="Một món quà Giáng Sinh nhỏ xinh dành riêng cho em" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="effects/button.css" />
+    
   </head>
   <body>
+    <canvas id="star-canvas" aria-hidden="true"></canvas>
     <canvas id="snow-canvas" aria-hidden="true"></canvas>
 
     <header class="site-header">
       <div class="wrap">
-        <div class="brand">🎄 Christmas Gift</div>
+        <button id="brand-home-global" class="brand btn btn-secondary" style="background: transparent; border: none; padding: 0;">🎄 Christmas Gift</button>
         <nav>
-          <a href="#memories">Kỷ niệm</a>
+          <a href="#festive">Trang trí cây</a>
           <a href="#gallery">Kho ảnh</a>
-          <a href="gift.html" class="btn btn-primary">Mở món quà</a>
+          <button id="open-gift" class="btn btn-primary">Mở món quà</button>
         </nav>
       </div>
     </header>
@@ -30,26 +33,40 @@
           Mùa Giáng Sinh này, anh có một món quà nhỏ muốn dành cho em —
           một trang web nho nhỏ được anh tự tay làm, chứa những điều dễ thương và những kỷ niệm của chúng mình.
         </p>
-        <div class="countdown" id="countdown" aria-live="polite">
-          <div class="time"><span id="days">00</span><small>ngày</small></div>
-          <div class="time"><span id="hours">00</span><small>giờ</small></div>
-          <div class="time"><span id="minutes">00</span><small>phút</small></div>
-          <div class="time"><span id="seconds">00</span><small>giây</small></div>
-        </div>
         <div class="actions">
-          <a href="gift.html" class="btn btn-primary">Mở món quà 🎁</a>
+          <button id="open-gift-hero" class="btn btn-primary">Mở món quà 🎁</button>
           <a href="#memories" class="btn btn-secondary">Xem kỷ niệm ✨</a>
         </div>
         <p class="signature">— từ <span id="sender-name">Anh</span> —</p>
       </div>
     </main>
 
-    <section id="memories" class="memories">
+    <section id="festive" class="festive">
       <div class="wrap">
-        <h2>Những kỷ niệm của chúng mình</h2>
-        <ul id="timeline" class="timeline"></ul>
+        <h2>Trang trí cây thông 🎄</h2>
+        <p class="lead">Chạm vào các quả châu để nhận lời chúc ngẫu nhiên ✨</p>
+        <div class="tree-stage">
+          <div class="tree" aria-label="Cây thông Noel">
+            <div class="triangle t1"></div>
+            <div class="triangle t2"></div>
+            <div class="triangle t3"></div>
+            <div class="trunk"></div>
+            <!-- Ornaments -->
+            <button class="ornament" style="left: 50%; top: 28%;" aria-label="Quả châu"></button>
+            <button class="ornament" style="left: 35%; top: 40%;" aria-label="Quả châu"></button>
+            <button class="ornament" style="left: 63%; top: 42%;" aria-label="Quả châu"></button>
+            <button class="ornament" style="left: 28%; top: 56%;" aria-label="Quả châu"></button>
+            <button class="ornament" style="left: 72%; top: 58%;" aria-label="Quả châu"></button>
+            <button class="ornament" style="left: 45%; top: 66%;" aria-label="Quả châu"></button>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="shake-snow" class="btn btn--snow btn--hat">Lắc tuyết ❄️</button>
+          <button id="fireworks" class="btn btn--fireworks btn--hat">Pháo hoa 🎆</button>
+        </div>
       </div>
     </section>
+
 
     <section id="gallery" class="gallery">
       <div class="wrap">
@@ -65,18 +82,189 @@
       </div>
     </section>
 
+    <!-- Gift SPA view (single global header kept) -->
+    <section id="gift-view" class="gift-page" hidden>
+      <canvas id="snow-canvas-gift" aria-hidden="true"></canvas>
+      <main class="gift-main">
+        <div class="wrap">
+          <h1>Món quà dành cho <span id="recipient-name-gift">Em</span></h1>
+          <p class="hint">Chạm vào phong bì để mở 💌</p>
+
+          <div id="envelope" class="envelope" role="button" aria-label="Mở thư" tabindex="0">
+            <div class="flap"></div>
+            <div class="letter">
+              <div class="letter-content" id="letter-content"></div>
+            </div>
+            <div class="seal">💖</div>
+          </div>
+
+          <div class="gift-actions">
+            <button id="shake-snow-gift" class="btn btn--snow btn--hat">Lắc tuyết ❄️</button>
+            <button id="fireworks-gift" class="btn btn--fireworks btn--hat">Pháo hoa 🎆</button>
+            <button id="replay" class="btn btn-secondary">Xem lại hiệu ứng</button>
+          </div>
+        </div>
+      </main>
+      <div id="hearts-container" aria-hidden="true"></div>
+      <footer class="site-footer">
+        <div class="wrap">
+          <small>Merry Christmas • With love</small>
+        </div>
+      </footer>
+    </section>
+
     <footer class="site-footer">
       <div class="wrap">
         <small>Chúc Giáng Sinh an lành và ấm áp 💚❤️</small>
       </div>
     </footer>
 
+    <!-- Garland lights & Santa fly-by -->
+    <ul class="garland" aria-hidden="true">
+      <li></li><li></li><li></li><li></li><li></li>
+      <li></li><li></li><li></li><li></li><li></li>
+    </ul>
+    <div id="santa" aria-hidden="true">🎅🛷</div>
+
     <div id="music-bar" class="music-bar" aria-live="polite">
-      <button id="music-toggle" class="btn btn-secondary">🎵 Phát</button>
       <input id="music-volume" type="range" min="0" max="1" step="0.05" value="0.6" aria-label="Âm lượng nhạc" />
     </div>
+    <!-- Curtain wipe for scene transitions -->
+    <div class="curtain" id="curtain" aria-hidden="true"></div>
 
     <script src="config.js"></script>
+    <script src="effects/snow-config.js"></script>
     <script src="script.js"></script>
+    <!-- Interactive firework overlay (on-demand) -->
+    <script src="firework/script_firesork.js"></script>
+    
+    <script>
+      // Simple SPA toggling so audio persists on the same page
+      document.addEventListener('DOMContentLoaded', () => {
+        const giftView = document.getElementById('gift-view');
+        const curtain = document.getElementById('curtain');
+        const sections = [document.querySelector('.hero'), document.getElementById('festive'), document.getElementById('stage3d'), document.getElementById('gallery'), document.querySelector('.site-footer')];
+        // Helper to apply enter/exit transitions
+        function transitionOut(nodes){
+          // Show curtain first for a classy wipe
+          if (curtain) {
+            curtain.classList.remove('hide');
+            curtain.classList.add('show');
+          }
+          nodes.forEach(n => {
+            if (!n || n.hidden) return;
+            n.classList.remove('view-enter','view-enter-active');
+            n.classList.add('view-exit');
+            requestAnimationFrame(() => {
+              n.classList.add('view-exit-active');
+              setTimeout(() => { n.hidden = true; n.classList.remove('view-exit','view-exit-active'); }, 620);
+            });
+          });
+        }
+        function transitionIn(node){
+          node.hidden = false;
+          node.classList.remove('view-exit','view-exit-active');
+          node.classList.add('view-enter');
+          requestAnimationFrame(() => {
+            node.classList.add('view-enter-active');
+            setTimeout(() => {
+              node.classList.remove('view-enter','view-enter-active');
+              // Hide curtain after content has entered
+              if (curtain) {
+                curtain.classList.remove('show');
+                curtain.classList.add('hide');
+                // remove classes once animation done
+                setTimeout(() => { curtain.classList.remove('hide'); }, 720);
+              }
+            }, 740);
+          });
+        }
+        function showGift(){
+          transitionOut(sections);
+          transitionIn(giftView);
+          // Switch header action to "Trở về trang chủ"
+          const navBackBtn = document.getElementById('open-gift');
+          if (navBackBtn) {
+            navBackBtn.textContent = 'Trở về trang chủ';
+            navBackBtn.className = 'btn btn-secondary';
+            // Remove previous listeners by cloning
+            const clone = navBackBtn.cloneNode(true);
+            navBackBtn.parentNode.replaceChild(clone, navBackBtn);
+            clone.addEventListener('click', showHome);
+          }
+          // Initialize gift interactions
+          const envelope = document.getElementById('envelope');
+          const letterContent = document.getElementById('letter-content');
+          const letterEl = envelope.querySelector('.letter');
+          const replayBtn = document.getElementById('replay');
+          const recipientEl = document.getElementById('recipient-name-gift');
+          try {
+            recipientEl.textContent = (window.GIFT_CONFIG?.recipientName) || 'Em';
+            letterContent.innerHTML = (window.GIFT_CONFIG?.specialMessage || 'Gửi em, chúc em một mùa Giáng Sinh thật an lành và ấm áp!');
+            // Inject date chip (VN locale)
+            const now = new Date();
+            const day = now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const chip = document.createElement('div');
+            chip.className = 'date-chip';
+            chip.textContent = `Giáng Sinh ${now.getFullYear()} • ${day}`;
+            // avoid duplicates
+            const oldChip = letterContent.querySelector('.date-chip');
+            if (oldChip) oldChip.remove();
+            letterContent.prepend(chip);
+            // Add a small festive sticker to the letter corner
+            const oldSticker = letterEl.querySelector('.sticker');
+            if (oldSticker) oldSticker.remove();
+            const sticker = document.createElement('div');
+            sticker.className = 'sticker';
+            sticker.textContent = '🕯️';
+            letterEl.appendChild(sticker);
+          } catch (e) {}
+          const open = () => { 
+            // Open the envelope; the letter will zoom to center
+            envelope.classList.add('open');
+            giftView.classList.add('opening');
+            window.startHeartConfetti && window.startHeartConfetti();
+            setTimeout(()=> giftView.classList.remove('opening'), 1400);
+          };
+          const closeLetter = () => {
+            if (envelope.classList.contains('open')) {
+              envelope.classList.remove('open');
+            }
+          };
+          envelope.addEventListener('click', open);
+          envelope.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+          replayBtn.addEventListener('click', () => {
+            envelope.classList.remove('open');
+            void envelope.offsetWidth; // reflow
+            window.startHeartConfetti && window.startHeartConfetti();
+          });
+          // Click outside letter to close back into envelope
+          giftView.addEventListener('click', (e) => {
+            const letterEl = document.querySelector('#letter-content')?.parentElement;
+            const insideLetter = letterEl && (letterEl.contains(e.target));
+            const insideEnvelope = envelope.contains(e.target);
+            if (!insideLetter && !insideEnvelope) closeLetter();
+          });
+          // ESC to close
+          document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLetter(); }, { once: true });
+        }
+        function showHome(){
+          transitionOut([giftView]);
+          sections.forEach(s => s && transitionIn(s));
+          // Restore header action to "Mở món quà"
+          const navOpenBtn = document.getElementById('open-gift');
+          if (navOpenBtn) {
+            navOpenBtn.textContent = 'Mở món quà';
+            navOpenBtn.className = 'btn btn-primary';
+            const clone = navOpenBtn.cloneNode(true);
+            navOpenBtn.parentNode.replaceChild(clone, navOpenBtn);
+            clone.addEventListener('click', showGift);
+          }
+        }
+        const openBtns = [document.getElementById('open-gift'), document.getElementById('open-gift-hero')];
+        openBtns.forEach(b => b && b.addEventListener('click', showGift));
+        document.getElementById('brand-home-global')?.addEventListener('click', showHome);
+      });
+    </script>
   </body>
 </html>

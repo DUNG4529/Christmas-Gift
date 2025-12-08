@@ -34,6 +34,12 @@ Start-Process "msedge.exe" "$PWD/index.html"
 - Thanh nhạc: nút phát/tạm dừng và kéo âm lượng ở góc dưới bên phải.
 - Slideshow ảnh: thêm ảnh vào `assets/photos/` và khai báo trong `config.js`.
 
+### Hiệu ứng mới (vivid)
+
+- Quả châu: chạm để phát tia lấp lánh + lời chúc + tiếng chuông nho nhỏ.
+- Hộp quà CSS 3D: bấm vào để mở nắp và bắn giấy màu (confetti).
+- Nút “Pháo hoa 🎆”: trình diễn pháo hoa 5 giây trên toàn màn hình.
+
 ### Nhạc: file MP3 cục bộ
 
 - Đặt file MP3 vào `assets/audio/` (ví dụ `music.mp3`) và chỉnh `config.js` → `audio.src`.

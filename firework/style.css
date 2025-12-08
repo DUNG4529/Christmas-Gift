@@ -1,0 +1,75 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Body and Canvas Styles */
+body {
+    overflow: hidden;
+    background-color: #000000;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+canvas {
+    background-color: #000000;
+    display: block;
+    margin: 0 auto;
+}
+/* Firework Styles */
+.firework {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+.firework .particle {
+    position: absolute;
+    border-radius: 50%;
+    background-color: #ffffff;
+    opacity: 0.8;
+}
+.firework .particle.sparkle {
+    background-color: #ffff00;
+    opacity: 1;
+    box-shadow: 0 0 8px 2px #ffff00;
+}
+.firework.explosion .particle {
+    animation: explode 1s ease-out forwards;
+}
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+/* Additional Styles */
+.firework.launch {
+    animation: launch 0.5s ease-out forwards;
+}
+@keyframes launch {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+    }
+}
+/* Responsive Design */
+@media (max-width: 600px) {
+    body {
+        height: auto;
+        padding: 20px;
+    }
+}
+/* End of firework/style.css */
