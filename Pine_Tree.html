@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>3D Christmas Tree - Advanced</title>
+        <style>
+            /* CSS Reset & Basic Style */
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                /* Ẩn thanh cuộn */
+                background-color: #020205;
+                /* Màu nền đen xanh thẫm */
+                font-family: 'Arial', sans-serif;
+            }
+
+            /* Canvas nằm full màn hình */
+            canvas {
+                display: block;
+            }
+
+            /* Chữ hiển thị giữa màn hình (Overlay) */
+            .overlay-text {
+                position: absolute;
+                bottom: 50px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 2rem;
+                font-weight: 300;
+                letter-spacing: 5px;
+                pointer-events: none;
+                /* Không chặn chuột click vào canvas */
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+                font-family: 'Brush Script MT', cursive;
+                text-align: center;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="overlay-text">Merry Christmas & Happy New Year</div>
+        <canvas id="scene"></canvas>
+
+        <script>
+            /**
+             * CẤU HÌNH CHUNG
+             */
+            const CONFIG = {
+                particleCount: 1500,    // Số lượng hạt trên cây (Tăng lên nếu máy mạnh)
+                snowCount: 200,         // Số lượng hạt tuyết
+                particleSize: 2,        // Kích thước hạt cây
+                treeWidth: 250,         // Độ rộng đáy cây
+                treeHeight: 500,        // Chiều cao cây
+                spinSpeed: 0.005,       // Tốc độ xoay tự động
+                blinkSpeed: 0.05,       // Tốc độ nhấp nháy đèn
+                colorMode: 'mixed'      // 'mixed', 'green', 'gold'
+            };
+
+            const canvas = document.getElementById('scene');
+            const ctx = canvas.getContext('2d');
+
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            let particles = [];
+            let snowParticles = [];
+            let angleY = 0;
+            let mouseX = 0;
+            let targetAngleY = 0;
+
+            /**
+             * LỚP XỬ LÝ TOÁN HỌC 3D CƠ BẢN
+             */
+            const M3D = {
+                // Chiếu điểm 3D (x,y,z) sang 2D (x,y) trên màn hình
+                project: (p3d, width, height) => {
+                    // Tỉ lệ phối cảnh (Perspective)
+                    const fov = 300;
+                    const scale = fov / (fov + p3d.z);
+
+                    return {
+                        x: p3d.x * scale + width / 2,
+                        y: p3d.y * scale + height / 2,
+                        scale: scale
+                    };
+                },
+
+                // Xoay điểm quanh trục Y
+                rotateY: (p3d, angle) => {
+                    const cos = Math.cos(angle);
+                    const sin = Math.sin(angle);
+                    return {
+                        x: p3d.x * cos - p3d.z * sin,
+                        y: p3d.y,
+                        z: p3d.z * cos + p3d.x * sin,
+                        color: p3d.color,
+                        origY: p3d.origY // Giữ lại Y gốc để tính toán màu
+                    };
+                }
+            };
+
+            /**
+             * CLASS: PARTICLE (Hạt của cây thông)
+             */
+            class Particle {
+                constructor(x, y, z) {
+                    this.x = x;
+                    this.y = y;
+                    this.z = z;
+                    this.origY = y; // Lưu vị trí Y gốc
+
+                    // Random màu sắc
+                    this.color = this.generateColor();
+
+                    // Thông số nhấp nháy
+                    this.alpha = Math.random();
+                    this.blinkOffset = Math.random() * Math.PI * 2;
+                }
+
+                generateColor() {
+                    const rand = Math.random();
+
+                    // Màu sắc dựa trên cấu hình
+                    if (CONFIG.colorMode === 'green') {
+                        return `rgba(50, ${150 + Math.random() * 105}, 50, 1)`;
+                    }
+
+                    // Chế độ Mixed (Đỏ, Vàng, Xanh)
+                    if (rand > 0.90) return `255, 50, 50`;  // Đỏ (Quả châu)
+                    if (rand > 0.80) return `255, 255, 50`; // Vàng (Đèn)
+                    if (rand > 0.75) return `255, 255, 255`; // Trắng (Tuyết bám)
+                    return `50, ${150 + Math.random() * 105}, 50`; // Các sắc thái xanh lá
+                }
+
+                update(time) {
+                    // Tạo hiệu ứng nhấp nháy cho đèn (Alpha thay đổi theo thời gian)
+                    this.alpha = 0.5 + 0.5 * Math.sin(time * 2 + this.blinkOffset);
+                }
+            }
+
+            /**
+             * CLASS: SNOW (Hạt tuyết rơi)
+             */
+            class Snow {
+                constructor() {
+                    this.reset();
+                }
+
+                reset() {
+                    this.x = (Math.random() - 0.5) * width * 2;
+                    this.y = -height / 2 - Math.random() * height;
+                    this.z = (Math.random() - 0.5) * 500;
+                    this.speed = 1 + Math.random() * 2;
+                    this.radius = 1 + Math.random() * 2;
+                }
+
+                update() {
+                    this.y += this.speed;
+                    // Nếu rơi quá màn hình thì reset lên trên
+                    if (this.y > height / 2 + 100) {
+                        this.reset();
+                    }
+                }
+
+                draw(ctx) {
+                    // Áp dụng phối cảnh 3D đơn giản cho tuyết
+                    const p3d = { x: this.x, y: this.y, z: this.z };
+
+                    // Xoay tuyết theo cây luôn cho đồng bộ (hoặc bỏ dòng này nếu muốn tuyết rơi thẳng)
+                    const rotated = M3D.rotateY(p3d, angleY);
+                    const p2d = M3D.project(rotated, width, height);
+
+                    if (p2d.scale > 0) {
+                        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, p2d.scale)})`;
+                        ctx.beginPath();
+                        ctx.arc(p2d.x, p2d.y, this.radius * p2d.scale, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            /**
+             * KHỞI TẠO CÂY (LOGIC XOẮN ỐC)
+             */
+            function initTree() {
+                particles = [];
+
+                // 1. Tạo thân cây hình nón xoắn ốc
+                for (let i = 0; i < CONFIG.particleCount; i++) {
+                    // p đi từ 0 (đỉnh) đến 1 (đáy)
+                    const p = i / CONFIG.particleCount;
+
+                    // Tính toán hình dáng xoắn ốc
+                    const y = -CONFIG.treeHeight / 2 + p * CONFIG.treeHeight;
+
+                    // Bán kính mở rộng dần xuống dưới
+                    const radius = (1 - p) * CONFIG.treeWidth;
+
+                    // Góc xoay (tạo hình xoắn ốc) - nhân số lớn để xoắn nhiều vòng
+                    const angle = i * 0.15;
+
+                    const x = Math.cos(angle) * radius;
+                    const z = Math.sin(angle) * radius;
+
+                    particles.push(new Particle(x, y, z));
+                }
+
+                // 2. Tạo Ngôi sao trên đỉnh
+                for (let i = 0; i < 100; i++) {
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    const r = Math.random() * 15; // Kích thước ngôi sao
+
+                    const x = r * Math.sin(phi) * Math.cos(theta);
+                    const y = -CONFIG.treeHeight / 2 - 20 + r * Math.sin(phi) * Math.sin(theta);
+                    const z = r * Math.cos(phi);
+
+                    const star = new Particle(x, y, z);
+                    star.color = `255, 215, 0`; // Màu vàng Gold
+                    particles.push(star);
+                }
+            }
+
+            /**
+             * KHỞI TẠO TUYẾT
+             */
+            function initSnow() {
+                snowParticles = [];
+                for (let i = 0; i < CONFIG.snowCount; i++) {
+                    snowParticles.push(new Snow());
+                }
+            }
+
+            /**
+             * VÒNG LẶP CHÍNH (RENDER LOOP)
+             */
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                // 1. Cập nhật góc xoay
+                // Tự động xoay + Tương tác chuột
+                targetAngleY += CONFIG.spinSpeed;
+
+                // Hiệu ứng "easing" khi di chuột (nếu muốn dùng chuột thì bỏ comment dòng dưới)
+                // targetAngleY += (mouseX * 0.001 - targetAngleY) * 0.05; 
+
+                angleY = targetAngleY;
+
+                // Thời gian hiện tại dùng cho nhấp nháy
+                const time = Date.now() * 0.001;
+
+                // 2. Vẽ Tuyết (Vẽ trước để nằm sau cây)
+                snowParticles.forEach(snow => {
+                    snow.update();
+                    snow.draw(ctx);
+                });
+
+                // 3. Xử lý và Vẽ Cây
+                // Chúng ta cần một mảng tạm để chứa các điểm đã xoay 3D
+                let renderList = [];
+
+                particles.forEach(p => {
+                    p.update(time); // Cập nhật nhấp nháy
+
+                    // Xoay hạt
+                    const rotated = M3D.rotateY(p, angleY);
+
+                    // Chiếu 3D -> 2D
+                    const p2d = M3D.project(rotated, width, height);
+
+                    // Chỉ thêm vào danh sách vẽ nếu kích thước > 0 (nằm phía trước camera)
+                    if (p2d.scale > 0) {
+                        renderList.push({
+                            x: p2d.x,
+                            y: p2d.y,
+                            scale: p2d.scale,
+                            z: rotated.z, // Dùng z để sắp xếp độ sâu
+                            color: rotated.color,
+                            alpha: p.alpha
+                        });
+                    }
+                });
+
+                // Sắp xếp các hạt theo trục Z (Painter's Algorithm)
+                // Hạt ở xa (z nhỏ/âm) vẽ trước, hạt ở gần vẽ sau
+                renderList.sort((a, b) => b.z - a.z);
+
+                // Vẽ các hạt
+                renderList.forEach(p => {
+                    ctx.beginPath();
+
+                    // Màu sắc + Độ trong suốt (dựa trên scale để tạo sương mù xa gần)
+                    const alpha = p.alpha * p.scale;
+                    ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
+
+                    // Vẽ hình tròn
+                    ctx.arc(p.x, p.y, CONFIG.particleSize * p.scale, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            /**
+             * XỬ LÝ SỰ KIỆN
+             */
+
+            // Resize màn hình
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                initSnow(); // Reset tuyết để tránh bị lệch
+            });
+
+            // Tương tác chuột (Di chuyển để đổi góc nhìn)
+            window.addEventListener('mousemove', (e) => {
+                // Chuyển đổi tọa độ chuột sang khoảng -1 đến 1
+                mouseX = (e.clientX - width / 2);
+            });
+
+            // KHỞI CHẠY
+            initTree();
+            initSnow();
+            animate();
+
+        </script>
+    </body>
+
+</html>

@@ -4,7 +4,7 @@
 window.GIFT_CONFIG = {
   // Thông tin cá nhân hoá
   recipientName: "Em yêu dấu, người anh trân quý",
-  senderName: "Nguyễn Tiến Dũng, ế vẫn chờ em",
+  senderName: "Nguyễn Tiến Dũng, rằng người luôn yêu em",
 
   // Nội dung bức thư (trang mở quà)
   specialMessage: `
