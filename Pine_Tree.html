@@ -6,15 +6,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>3D Christmas Tree</title>
         <style>
-            html,
-            body {
-                width: 100%;
-                height: 100%;
+            * {
                 margin: 0;
                 padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                width: 100vw;
+                height: 100vh;
                 overflow: hidden;
-                background-color: #020205;
-                font-family: 'Arial', sans-serif;
+                background: linear-gradient(180deg, #0a0a1a 0%, #020205 100%);
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                position: relative;
+                cursor: default;
             }
 
             canvas {
@@ -26,54 +31,518 @@
                 bottom: 50px;
                 left: 50%;
                 transform: translateX(-50%);
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 2rem;
+                color: rgba(255, 255, 255, 0.95);
+                font-size: clamp(1.8rem, 4vw, 3rem);
                 font-weight: 300;
-                letter-spacing: 5px;
+                letter-spacing: 4px;
+                text-align: center;
+                font-family: 'Dancing Script', 'Brush Script MT', cursive;
+                text-shadow:
+                    0 0 20px rgba(255, 215, 0, 0.8),
+                    0 0 40px rgba(255, 50, 50, 0.4);
+                animation: textGlow 3s ease-in-out infinite alternate;
+                z-index: 10;
                 pointer-events: none;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-                font-family: 'Brush Script MT', cursive;
+            }
+
+            @keyframes textGlow {
+                from {
+                    text-shadow:
+                        0 0 10px rgba(255, 215, 0, 0.8),
+                        0 0 20px rgba(255, 50, 50, 0.4);
+                }
+
+                to {
+                    text-shadow:
+                        0 0 25px rgba(255, 215, 0, 1),
+                        0 0 50px rgba(255, 50, 50, 0.6),
+                        0 0 60px rgba(50, 255, 50, 0.3);
+                }
+            }
+
+            .controls {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.85);
+                backdrop-filter: blur(15px);
+                border-radius: 20px;
+                padding: 25px;
+                color: white;
+                width: 300px;
+                box-shadow:
+                    0 10px 40px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(255, 255, 255, 0.05),
+                    inset 0 0 20px rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                z-index: 100;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            .controls.hidden {
+                transform: translateX(calc(100% + 20px));
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .controls-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .controls h3 {
+                color: #4CAF50;
+                font-size: 1.3rem;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                margin: 0;
+            }
+
+            .close-controls {
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                color: white;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 18px;
+                transition: all 0.3s;
+                font-weight: bold;
+            }
+
+            .close-controls:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: rotate(90deg);
+            }
+
+            .control-group {
+                margin-bottom: 20px;
+            }
+
+            .control-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-size: 0.9rem;
+                color: #ccc;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .slider-container {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 5px 0;
+            }
+
+            input[type="range"] {
+                flex: 1;
+                height: 6px;
+                background: linear-gradient(to right, #0a0a1a, #4CAF50);
+                border-radius: 3px;
+                outline: none;
+                -webkit-appearance: none;
+                cursor: pointer;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 20px;
+                height: 20px;
+                background: #4CAF50;
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+                transition: all 0.3s;
+                border: 2px solid white;
+            }
+
+            input[type="range"]::-webkit-slider-thumb:hover {
+                transform: scale(1.2);
+                box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+            }
+
+            .value-display {
+                min-width: 45px;
+                text-align: center;
+                font-size: 0.85rem;
+                color: #4CAF50;
+                background: rgba(76, 175, 80, 0.1);
+                padding: 4px 8px;
+                border-radius: 10px;
+                font-weight: 600;
+            }
+
+            .button-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 5px;
+            }
+
+            .button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: none;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 15px;
+                cursor: pointer;
+                font-size: 0.8rem;
+                transition: all 0.3s;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+                flex: 1;
+                min-width: 70px;
                 text-align: center;
             }
+
+            .button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            }
+
+            .button.active {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                box-shadow: 0 0 15px rgba(245, 87, 108, 0.4);
+            }
+
+            .hint {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                color: rgba(255, 255, 255, 0.5);
+                font-size: 0.8rem;
+                z-index: 10;
+                background: rgba(0, 0, 0, 0.3);
+                padding: 8px 12px;
+                border-radius: 10px;
+                backdrop-filter: blur(5px);
+            }
+
+            .loading {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #020205;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                transition: opacity 0.5s, visibility 0.5s;
+            }
+
+            .loading.hidden {
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .spinner {
+                width: 60px;
+                height: 60px;
+                border: 3px solid rgba(255, 255, 255, 0.1);
+                border-top: 3px solid #4CAF50;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .star-toggle {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+                border-radius: 50%;
+                width: 60px;
+                height: 60px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                border: 1px solid rgba(255, 215, 0, 0.3);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+                transition: all 0.3s;
+                z-index: 100;
+            }
+
+            .star-toggle:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+            }
+
+            .star-toggle.active {
+                box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+                background: rgba(255, 215, 0, 0.1);
+            }
+
+            .show-controls {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s;
+                z-index: 99;
+                opacity: 0.7;
+            }
+
+            .show-controls:hover {
+                opacity: 1;
+                transform: scale(1.1);
+                background: rgba(0, 0, 0, 0.9);
+            }
+
+            .show-controls.hidden {
+                opacity: 0;
+                pointer-events: none;
+                transform: scale(0.8);
+            }
+
+            .controls-toggle-icon {
+                width: 24px;
+                height: 24px;
+                fill: white;
+            }
+
+            .shortcuts {
+                position: fixed;
+                top: 90px;
+                right: 20px;
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.75rem;
+                text-align: center;
+                z-index: 99;
+                background: rgba(0, 0, 0, 0.3);
+                padding: 5px 10px;
+                border-radius: 10px;
+                backdrop-filter: blur(5px);
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .show-controls:hover+.shortcuts {
+                opacity: 1;
+            }
+
+            .color-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+                margin-top: 5px;
+            }
         </style>
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
     </head>
 
     <body>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="star-toggle" id="starToggle">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="gold">
+                <path
+                    d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z" />
+            </svg>
+        </div>
+
+        <div class="show-controls" id="showControls">
+            <svg class="controls-toggle-icon" viewBox="0 0 24 24">
+                <path
+                    d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.031.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
+            </svg>
+        </div>
+
+        <div class="shortcuts">Press "C" to toggle controls</div>
+
+        <div class="controls" id="controls">
+            <div class="controls-header">
+                <h3>Tree Controls</h3>
+                <button class="close-controls" id="closeControls">×</button>
+            </div>
+
+            <div class="control-group">
+                <label>Rotation Speed</label>
+                <div class="slider-container">
+                    <input type="range" id="rotationSpeed" min="0" max="0.01" step="0.0001" value="0.0012">
+                    <span class="value-display" id="rotationValue">0.0012</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Particle Count</label>
+                <div class="slider-container">
+                    <input type="range" id="particleCount" min="500" max="3000" step="100" value="1500">
+                    <span class="value-display" id="particleValue">1500</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Snow Density</label>
+                <div class="slider-container">
+                    <input type="range" id="snowDensity" min="50" max="500" step="50" value="200">
+                    <span class="value-display" id="snowValue">200</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Color Theme</label>
+                <div class="color-grid">
+                    <button class="button active" id="btnMixed">Mixed</button>
+                    <button class="button" id="btnGreen">Green</button>
+                    <button class="button" id="btnGold">Gold</button>
+                    <button class="button" id="btnRainbow">Rainbow</button>
+                    <button class="button" id="btnWinter">Winter</button>
+                    <button class="button" id="btnAutumn">Autumn</button>
+                    <button class="button" id="btnNeon">Neon</button>
+                    <button class="button" id="btnPastel">Pastel</button>
+                    <button class="button" id="btnOcean">Ocean</button>
+                    <button class="button" id="btnRandom">Random</button>
+                </div>
+            </div>
+        </div>
+
         <div class="overlay-text">Merry Christmas & Happy New Year</div>
+        <div class="hint">Drag to rotate • Scroll to zoom • Press C for controls</div>
         <canvas id="scene"></canvas>
 
         <script>
-            const CONFIG = {
-                particleCount: 1500,
-                snowCount: 200,
-                particleSize: 2,
-                treeWidth: 250,
-                treeHeight: 500,
-                spinSpeed: 0.0012,  // ĐÃ GIẢM TỪ 0.005 XUỐNG 0.0012 ĐỂ XOAY CHẬM HƠN
-                colorMode: 'mixed'
-            };
+            class Config {
+                constructor() {
+                    this.particleCount = 1500;
+                    this.snowCount = 200;
+                    this.particleSize = 2;
+                    this.treeWidth = 250;
+                    this.treeHeight = 500;
+                    this.spinSpeed = 0.0012;
+                    this.colorMode = 'mixed';
+                    this.starTwinkle = true;
+                    this.controlsVisible = true;
+                }
+            }
 
-            const canvas = document.getElementById('scene');
-            const ctx = canvas.getContext('2d');
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
+            class ChristmasTree {
+                constructor() {
+                    this.config = new Config();
+                    this.canvas = document.getElementById('scene');
+                    this.ctx = this.canvas.getContext('2d');
+                    this.particles = [];
+                    this.snowParticles = [];
+                    this.angleY = 0;
+                    this.isMouseDown = false;
+                    this.lastMouseX = 0;
+                    this.lastMouseY = 0;
+                    this.cameraDistance = 1000;
 
-            let particles = [];
-            let snowParticles = [];
-            let angleY = 0;
+                    this.init();
+                    this.setupEventListeners();
+                    this.setupControls();
+                    this.setupControlToggle();
+                    this.animate();
+                }
 
-            const M3D = {
-                project: (p3d, width, height) => {
-                    const fov = 300;
+                init() {
+                    this.resizeCanvas();
+                    this.initTree();
+                    this.initSnow();
+                    this.hideLoading();
+                }
+
+                resizeCanvas() {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                    this.width = this.canvas.width;
+                    this.height = this.canvas.height;
+                }
+
+                initTree() {
+                    this.particles = [];
+
+                    // Create tree body
+                    for (let i = 0; i < this.config.particleCount; i++) {
+                        const p = i / this.config.particleCount;
+                        const y = this.config.treeHeight / 2 - p * this.config.treeHeight;
+                        const radius = Math.pow(p, 1.5) * this.config.treeWidth;
+                        const angle = i * 0.1;
+                        const x = Math.cos(angle) * radius;
+                        const z = Math.sin(angle) * radius;
+
+                        const particle = new TreeParticle(x, y, z, this.config.colorMode);
+                        this.particles.push(particle);
+                    }
+
+                    // Create star on top
+                    this.createStar();
+                }
+
+                createStar() {
+                    const starPoints = 5;
+                    const outerRadius = 20;
+                    const innerRadius = 10;
+
+                    for (let i = 0; i < starPoints * 2; i++) {
+                        const angle = (Math.PI * i) / starPoints;
+                        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+
+                        const x = radius * Math.cos(angle);
+                        const y = -this.config.treeHeight / 2 - 25;
+                        const z = radius * Math.sin(angle);
+
+                        const starParticle = new TreeParticle(x, y, z, 'gold');
+                        starParticle.isStar = true;
+                        this.particles.push(starParticle);
+                    }
+                }
+
+                initSnow() {
+                    this.snowParticles = [];
+                    for (let i = 0; i < this.config.snowCount; i++) {
+                        this.snowParticles.push(new SnowParticle(this.width, this.height));
+                    }
+                }
+
+                project(p3d) {
+                    const fov = this.cameraDistance;
                     const scale = fov / (fov + p3d.z);
                     return {
-                        x: p3d.x * scale + width / 2,
-                        y: -p3d.y * scale + height / 2,
+                        x: p3d.x * scale + this.width / 2,
+                        y: -p3d.y * scale + this.height / 2,
                         scale: scale
                     };
-                },
+                }
 
-                rotateY: (p3d, angle) => {
+                rotateY(p3d, angle) {
                     const cos = Math.cos(angle);
                     const sin = Math.sin(angle);
                     return {
@@ -81,161 +550,455 @@
                         y: p3d.y,
                         z: p3d.z * cos + p3d.x * sin,
                         color: p3d.color,
-                        origY: p3d.origY
+                        alpha: p3d.alpha,
+                        isStar: p3d.isStar
                     };
                 }
-            };
 
-            class Particle {
-                constructor(x, y, z) {
+                animate() {
+                    this.ctx.clearRect(0, 0, this.width, this.height);
+
+                    const time = Date.now() * 0.001;
+
+                    // Auto rotation (always enabled by default)
+                    this.angleY += this.config.spinSpeed;
+
+                    // Update and draw snow (always enabled by default)
+                    this.snowParticles.forEach(snow => {
+                        snow.update();
+                        snow.draw(this.ctx, this);
+                    });
+
+                    // Process tree particles
+                    const renderList = [];
+
+                    this.particles.forEach(p => {
+                        p.update(time);
+                        const rotated = this.rotateY(p, this.angleY);
+                        const projected = this.project(rotated);
+
+                        if (projected.scale > 0) {
+                            renderList.push({
+                                ...projected,
+                                z: rotated.z,
+                                color: rotated.color,
+                                alpha: rotated.alpha,
+                                isStar: rotated.isStar
+                            });
+                        }
+                    });
+
+                    // Sort by depth
+                    renderList.sort((a, b) => b.z - a.z);
+
+                    // Draw particles
+                    renderList.forEach(p => {
+                        const size = p.isStar ?
+                            this.config.particleSize * 1.5 * p.scale :
+                            this.config.particleSize * p.scale;
+
+                        this.ctx.beginPath();
+                        this.ctx.fillStyle = `rgba(${p.color}, ${p.alpha * p.scale})`;
+                        this.ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+
+                        if (p.isStar && this.config.starTwinkle) {
+                            this.ctx.shadowColor = `rgba(${p.color}, 0.8)`;
+                            this.ctx.shadowBlur = 15 * p.scale;
+                        }
+
+                        this.ctx.fill();
+                        this.ctx.shadowBlur = 0;
+                    });
+
+                    requestAnimationFrame(() => this.animate());
+                }
+
+                setupEventListeners() {
+                    window.addEventListener('resize', () => {
+                        this.resizeCanvas();
+                        this.initSnow();
+                    });
+
+                    this.canvas.addEventListener('mousedown', (e) => {
+                        this.isMouseDown = true;
+                        this.lastMouseX = e.clientX;
+                        this.lastMouseY = e.clientY;
+                    });
+
+                    window.addEventListener('mousemove', (e) => {
+                        if (!this.isMouseDown) return;
+
+                        const deltaX = e.clientX - this.lastMouseX;
+                        this.angleY += deltaX * 0.005;
+
+                        this.lastMouseX = e.clientX;
+                        this.lastMouseY = e.clientY;
+                    });
+
+                    window.addEventListener('mouseup', () => {
+                        this.isMouseDown = false;
+                    });
+
+                    this.canvas.addEventListener('wheel', (e) => {
+                        e.preventDefault();
+                        this.cameraDistance = Math.max(300, Math.min(2000, this.cameraDistance - e.deltaY * 0.5));
+                    });
+
+                    // Touch events for mobile
+                    this.canvas.addEventListener('touchstart', (e) => {
+                        this.isMouseDown = true;
+                        this.lastMouseX = e.touches[0].clientX;
+                        this.lastMouseY = e.touches[0].clientY;
+                        e.preventDefault();
+                    });
+
+                    this.canvas.addEventListener('touchmove', (e) => {
+                        if (!this.isMouseDown) return;
+
+                        const deltaX = e.touches[0].clientX - this.lastMouseX;
+                        this.angleY += deltaX * 0.005;
+
+                        this.lastMouseX = e.touches[0].clientX;
+                        this.lastMouseY = e.touches[0].clientY;
+                        e.preventDefault();
+                    });
+
+                    this.canvas.addEventListener('touchend', () => {
+                        this.isMouseDown = false;
+                    });
+
+                    // Keyboard shortcuts
+                    window.addEventListener('keydown', (e) => {
+                        // Press 'C' to toggle controls
+                        if (e.key.toLowerCase() === 'c') {
+                            this.toggleControls();
+                        }
+
+                        // Press 'R' to reset rotation
+                        if (e.key.toLowerCase() === 'r') {
+                            this.angleY = 0;
+                        }
+                    });
+                }
+
+                setupControls() {
+                    // Rotation speed
+                    const rotationSlider = document.getElementById('rotationSpeed');
+                    const rotationValue = document.getElementById('rotationValue');
+
+                    rotationSlider.addEventListener('input', (e) => {
+                        this.config.spinSpeed = parseFloat(e.target.value);
+                        rotationValue.textContent = this.config.spinSpeed.toFixed(4);
+                    });
+
+                    // Particle count
+                    const particleSlider = document.getElementById('particleCount');
+                    const particleValue = document.getElementById('particleValue');
+
+                    particleSlider.addEventListener('input', (e) => {
+                        this.config.particleCount = parseInt(e.target.value);
+                        particleValue.textContent = this.config.particleCount;
+                        this.initTree();
+                    });
+
+                    // Snow density
+                    const snowSlider = document.getElementById('snowDensity');
+                    const snowValue = document.getElementById('snowValue');
+
+                    snowSlider.addEventListener('input', (e) => {
+                        this.config.snowCount = parseInt(e.target.value);
+                        snowValue.textContent = this.config.snowCount;
+                        this.initSnow();
+                    });
+
+                    // Color themes
+                    const colorButtons = {
+                        'btnMixed': 'mixed',
+                        'btnGreen': 'green',
+                        'btnGold': 'gold',
+                        'btnRainbow': 'rainbow',
+                        'btnWinter': 'winter',
+                        'btnAutumn': 'autumn',
+                        'btnNeon': 'neon',
+                        'btnPastel': 'pastel',
+                        'btnOcean': 'ocean',
+                        'btnRandom': 'random'
+                    };
+
+                    Object.entries(colorButtons).forEach(([id, mode]) => {
+                        document.getElementById(id).addEventListener('click', (e) => {
+                            this.setActiveButton(e.target, 'color');
+                            this.config.colorMode = mode;
+                            this.initTree();
+                        });
+                    });
+
+                    // Star toggle
+                    const starToggle = document.getElementById('starToggle');
+                    starToggle.addEventListener('click', () => {
+                        this.config.starTwinkle = !this.config.starTwinkle;
+                        starToggle.classList.toggle('active', this.config.starTwinkle);
+                    });
+                }
+
+                setupControlToggle() {
+                    const controls = document.getElementById('controls');
+                    const closeBtn = document.getElementById('closeControls');
+                    const showBtn = document.getElementById('showControls');
+
+                    // Close button
+                    closeBtn.addEventListener('click', () => {
+                        this.hideControls();
+                    });
+
+                    // Show button
+                    showBtn.addEventListener('click', () => {
+                        this.showControls();
+                    });
+
+                    // Initialize state
+                    if (!this.config.controlsVisible) {
+                        this.hideControls();
+                    }
+                }
+
+                hideControls() {
+                    const controls = document.getElementById('controls');
+                    const showBtn = document.getElementById('showControls');
+
+                    controls.classList.add('hidden');
+                    showBtn.classList.remove('hidden');
+                    this.config.controlsVisible = false;
+
+                    // Store preference
+                    localStorage.setItem('controlsVisible', 'false');
+                }
+
+                showControls() {
+                    const controls = document.getElementById('controls');
+                    const showBtn = document.getElementById('showControls');
+
+                    controls.classList.remove('hidden');
+                    showBtn.classList.add('hidden');
+                    this.config.controlsVisible = true;
+
+                    // Store preference
+                    localStorage.setItem('controlsVisible', 'true');
+                }
+
+                toggleControls() {
+                    if (this.config.controlsVisible) {
+                        this.hideControls();
+                    } else {
+                        this.showControls();
+                    }
+                }
+
+                setActiveButton(button, group) {
+                    const buttons = document.querySelectorAll(`.button`);
+                    buttons.forEach(btn => {
+                        if (btn.id.startsWith('btn')) {
+                            btn.classList.remove('active');
+                        }
+                    });
+                    button.classList.add('active');
+                }
+
+                hideLoading() {
+                    const loading = document.getElementById('loading');
+                    setTimeout(() => {
+                        loading.classList.add('hidden');
+                    }, 1000);
+
+                    // Load controls preference
+                    const controlsVisible = localStorage.getItem('controlsVisible');
+                    if (controlsVisible === 'false') {
+                        this.hideControls();
+                    }
+                }
+            }
+
+            class TreeParticle {
+                constructor(x, y, z, colorMode) {
                     this.x = x;
                     this.y = y;
                     this.z = z;
                     this.origY = y;
-                    this.color = this.generateColor();
-                    this.alpha = Math.random();
+                    this.isStar = false;
                     this.blinkOffset = Math.random() * Math.PI * 2;
+                    this.color = this.generateColor(colorMode);
+                    this.alpha = Math.random() * 0.5 + 0.5;
                 }
 
-                generateColor() {
+                generateColor(colorMode) {
                     const rand = Math.random();
-                    if (CONFIG.colorMode === 'green') {
-                        return `50, ${150 + Math.random() * 105}, 50`;
+
+                    if (this.isStar) return '255, 215, 0'; // Vàng cho ngôi sao
+
+                    switch (colorMode) {
+                        case 'green':
+                            // Nhiều sắc thái xanh lá tự nhiên
+                            const greenShades = [
+                                `34, ${139 + Math.random() * 50}, 34`,   // Forest green
+                                `0, ${100 + Math.random() * 80}, 0`,     // Dark green
+                                `144, ${238 + Math.random() * 17}, 144`, // Light green
+                                `60, ${179 + Math.random() * 76}, 113`,  // Sea green
+                                `46, ${139 + Math.random() * 90}, 87`    // Sage green
+                            ];
+                            return greenShades[Math.floor(Math.random() * greenShades.length)];
+
+                        case 'gold':
+                            // Nhiều sắc thái vàng kim loại
+                            const goldShades = [
+                                `${200 + Math.random() * 55}, ${150 + Math.random() * 105}, 50`, // Original
+                                `${218 + Math.random() * 37}, ${165 + Math.random() * 35}, 32`,  // Goldenrod
+                                `${255}, ${215 + Math.random() * 40}, 0`,                        // Gold
+                                `${184 + Math.random() * 71}, ${134 + Math.random() * 41}, 11`,  // Dark gold
+                                `${255}, ${223 + Math.random() * 32}, 0`                         // Bright gold
+                            ];
+                            return goldShades[Math.floor(Math.random() * goldShades.length)];
+
+                        case 'rainbow':
+                            // Màu sắc cầu vồng
+                            if (rand > 0.95) return '255, 50, 50';      // Đỏ
+                            if (rand > 0.90) return '255, 165, 0';      // Cam
+                            if (rand > 0.85) return '255, 255, 50';     // Vàng
+                            if (rand > 0.80) return '50, 205, 50';      // Xanh lá
+                            if (rand > 0.75) return '0, 191, 255';      // Xanh dương nhạt
+                            if (rand > 0.70) return '138, 43, 226';     // Tím
+                            if (rand > 0.65) return '255, 105, 180';    // Hồng
+                            return `50, ${150 + Math.random() * 105}, 50`; // Xanh lá mặc định
+
+                        case 'winter':
+                            // Màu sắc mùa đông
+                            if (rand > 0.95) return '255, 255, 255';    // Trắng tuyết
+                            if (rand > 0.90) return '173, 216, 230';    // Xanh nhạt
+                            if (rand > 0.85) return '135, 206, 235';    // Xanh thiên thanh
+                            if (rand > 0.80) return '240, 248, 255';    // Trắng ngà
+                            if (rand > 0.75) return '176, 224, 230';    // Xanh băng
+                            return `220, ${220 + Math.random() * 35}, 220`; // Xám xanh
+
+                        case 'autumn':
+                            // Màu sắc mùa thu
+                            if (rand > 0.95) return '139, 0, 0';        // Nâu đỏ
+                            if (rand > 0.90) return '210, 105, 30';     // Sô-cô-la
+                            if (rand > 0.85) return '255, 69, 0';       // Cam đỏ
+                            if (rand > 0.80) return '255, 140, 0';      // Cam đậm
+                            if (rand > 0.75) return '255, 215, 0';      // Vàng
+                            return `${150 + Math.random() * 105}, ${100 + Math.random() * 80}, 0`; // Nâu vàng
+
+                        case 'neon':
+                            // Màu neon sáng
+                            const neonColors = [
+                                '255, 20, 147',    // Hồng neon
+                                '0, 255, 255',     // Xanh cyan neon
+                                '255, 0, 255',     // Đỏ tía neon
+                                '0, 255, 0',       // Xanh lá neon
+                                '255, 255, 0',     // Vàng neon
+                                '255, 165, 0',     // Cam neon
+                                '138, 43, 226'     // Tím neon
+                            ];
+                            return neonColors[Math.floor(Math.random() * neonColors.length)];
+
+                        case 'pastel':
+                            // Màu pastel nhẹ nhàng
+                            const pastelColors = [
+                                `${221}, ${160}, ${221}`, // Pastel tím
+                                `${152}, ${251}, ${152}`, // Pastel xanh lá
+                                `${255}, ${182}, ${193}`, // Pastel hồng
+                                `${176}, ${224}, ${230}`, // Pastel xanh dương
+                                `${255}, ${255}, ${204}`, // Pastel vàng
+                                `${255}, ${218}, ${185}`  // Pastel cam
+                            ];
+                            return pastelColors[Math.floor(Math.random() * pastelColors.length)];
+
+                        case 'ocean':
+                            // Màu đại dương
+                            const oceanDepths = [
+                                `0, ${105 + Math.random() * 50}, ${148 + Math.random() * 50}`,   // Xanh biển sâu
+                                `${25}, ${25}, ${112 + Math.random() * 100}`,                    // Xanh nửa đêm
+                                `0, ${139 + Math.random() * 50}, ${139 + Math.random() * 50}`, // Xanh ngọc
+                                `${32}, ${178 + Math.random() * 50}, ${170 + Math.random() * 50}`, // Xanh nhạt
+                                `${70}, ${130 + Math.random() * 50}, ${180 + Math.random() * 50}`  // Xanh thép
+                            ];
+                            return oceanDepths[Math.floor(Math.random() * oceanDepths.length)];
+
+                        case 'random':
+                            // Màu ngẫu nhiên hoàn toàn
+                            return `${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}`;
+
+                        case 'mixed':
+                        default:
+                            // Chế độ hỗn hợp cải tiến
+                            if (rand > 0.93) return '255, 50, 50';      // Đỏ
+                            if (rand > 0.86) return '255, 165, 0';      // Cam
+                            if (rand > 0.79) return '255, 255, 50';     // Vàng
+                            if (rand > 0.72) return '255, 255, 255';    // Trắng
+                            if (rand > 0.68) return '138, 43, 226';     // Tím
+                            if (rand > 0.65) return '0, 191, 255';      // Xanh dương nhạt
+                            // Xanh lá với nhiều sắc thái hơn
+                            const greens = [
+                                `34, ${139 + Math.random() * 50}, 34`,
+                                `0, ${100 + Math.random() * 80}, 0`,
+                                `50, ${150 + Math.random() * 105}, 50`
+                            ];
+                            return greens[Math.floor(Math.random() * greens.length)];
                     }
-                    if (rand > 0.90) return `255, 50, 50`;
-                    if (rand > 0.80) return `255, 255, 50`;
-                    if (rand > 0.75) return `255, 255, 255`;
-                    return `50, ${150 + Math.random() * 105}, 50`;
                 }
 
                 update(time) {
-                    this.alpha = 0.5 + 0.5 * Math.sin(time * 2 + this.blinkOffset);
+                    this.alpha = 0.6 + 0.4 * Math.sin(time * 3 + this.blinkOffset);
                 }
             }
 
-            class Snow {
-                constructor() {
+            class SnowParticle {
+                constructor(width, height) {
+                    this.width = width;
+                    this.height = height;
                     this.reset();
+                    this.x += (Math.random() - 0.5) * width * 0.5;
+                    this.z = (Math.random() - 0.5) * 1000;
                 }
 
                 reset() {
-                    this.x = (Math.random() - 0.5) * width * 2;
-                    this.y = -height / 2 - Math.random() * height;
+                    this.x = (Math.random() - 0.5) * this.width * 2;
+                    this.y = -this.height / 2 - Math.random() * this.height;
                     this.z = (Math.random() - 0.5) * 500;
-                    this.speed = 1 + Math.random() * 2;
-                    this.radius = 1 + Math.random() * 2;
+                    this.speed = 1 + Math.random() * 3;
+                    this.radius = 1 + Math.random() * 3;
+                    this.wind = Math.random() * 2 - 1;
+                    this.sway = Math.random() * 0.02;
+                    this.swayOffset = Math.random() * Math.PI * 2;
                 }
 
                 update() {
                     this.y += this.speed;
-                    if (this.y > height / 2 + 100) {
+                    this.x += Math.sin(Date.now() * 0.001 * this.sway + this.swayOffset) * this.wind;
+
+                    if (this.y > this.height / 2 + 100) {
                         this.reset();
+                        this.y = -this.height / 2;
                     }
                 }
 
-                draw(ctx) {
-                    const p3d = { x: this.x, y: this.y, z: this.z };
-                    const rotated = M3D.rotateY(p3d, angleY);
-                    const p2d = M3D.project(rotated, width, height);
+                draw(ctx, tree) {
+                    const rotated = tree.rotateY(this, tree.angleY * 0.5);
+                    const projected = tree.project(rotated);
 
-                    if (p2d.scale > 0) {
-                        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, p2d.scale)})`;
+                    if (projected.scale > 0) {
                         ctx.beginPath();
-                        ctx.arc(p2d.x, p2d.y, this.radius * p2d.scale, 0, Math.PI * 2);
+                        const alpha = Math.min(1, projected.scale * 0.8);
+                        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                        ctx.arc(projected.x, projected.y, this.radius * projected.scale, 0, Math.PI * 2);
                         ctx.fill();
                     }
                 }
             }
 
-            function initTree() {
-                particles = [];
-
-                // Tạo thân cây
-                for (let i = 0; i < CONFIG.particleCount; i++) {
-                    const p = i / CONFIG.particleCount;
-                    const y = CONFIG.treeHeight / 2 - p * CONFIG.treeHeight;
-                    const radius = p * CONFIG.treeWidth * 0.8;
-                    const angle = i * 0.15;
-                    const x = Math.cos(angle) * radius;
-                    const z = Math.sin(angle) * radius;
-                    particles.push(new Particle(x, y, z));
-                }
-
-                // Tạo ngôi sao trên đỉnh
-                for (let i = 0; i < 100; i++) {
-                    const theta = Math.random() * Math.PI * 2;
-                    const phi = Math.acos(2 * Math.random() - 1);
-                    const r = Math.random() * 15;
-                    const x = r * Math.sin(phi) * Math.cos(theta);
-                    const y = -CONFIG.treeHeight / 2 - 15 + r * Math.sin(phi) * Math.sin(theta);
-                    const z = r * Math.cos(phi);
-                    const star = new Particle(x, y, z);
-                    star.color = `255, 215, 0`;
-                    particles.push(star);
-                }
-            }
-
-            function initSnow() {
-                snowParticles = [];
-                for (let i = 0; i < CONFIG.snowCount; i++) {
-                    snowParticles.push(new Snow());
-                }
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, width, height);
-
-                // Cập nhật góc xoay tự động với tốc độ chậm hơn
-                angleY += CONFIG.spinSpeed;
-                const time = Date.now() * 0.001;
-
-                // Vẽ tuyết
-                snowParticles.forEach(snow => {
-                    snow.update();
-                    snow.draw(ctx);
-                });
-
-                // Xử lý và vẽ cây
-                let renderList = [];
-                particles.forEach(p => {
-                    p.update(time);
-                    const rotated = M3D.rotateY(p, angleY);
-                    const p2d = M3D.project(rotated, width, height);
-
-                    if (p2d.scale > 0) {
-                        renderList.push({
-                            x: p2d.x,
-                            y: p2d.y,
-                            scale: p2d.scale,
-                            z: rotated.z,
-                            color: rotated.color,
-                            alpha: p.alpha
-                        });
-                    }
-                });
-
-                renderList.sort((a, b) => b.z - a.z);
-
-                renderList.forEach(p => {
-                    ctx.beginPath();
-                    const alpha = p.alpha * p.scale;
-                    ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
-                    ctx.arc(p.x, p.y, CONFIG.particleSize * p.scale, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-
-                requestAnimationFrame(animate);
-            }
-
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-                initSnow();
+            // Initialize the application
+            window.addEventListener('DOMContentLoaded', () => {
+                new ChristmasTree();
             });
-
-            initTree();
-            initSnow();
-            animate();
         </script>
     </body>
 
