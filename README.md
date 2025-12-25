@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-
-# Christmas-Gift
-
-# They say home is where the heart is. So even though I am here and you are there, my home is still with you. Merry Christmas to the one I’m waiting for 🥰
-
 # 🎄 Noel V2 - Interactive 3D Christmas Tree
+
+> _They say home is where the heart is. So even though I am here and you are there, my home is still with you. Merry Christmas to the one I'm waiting for 🥰_
 
 Dự án trải nghiệm Giáng sinh 3D tương tác với công nghệ nhận diện cử chỉ tay, được tối ưu hóa để chạy mượt mà và ấn tượng.
 
@@ -214,9 +210,9 @@ Dự án được tạo với ❤️ sử dụng Three.js và MediaPipe.
 
 ---
 
-**Version**: 2.0  
+**Version**: 2.2.7  
 **Last Updated**: December 25, 2025  
 **License**: Personal Use  
-**Author**: [Your Name]
-
-> > > > > > > 5adb474 (Final Version)
+**Author**: Nguyễn Tiến Dũng  
+**Contact**: Happy Holiday Season! 🎅  
+**Special Message**: _This project is dedicated to someone special_ 🎁
